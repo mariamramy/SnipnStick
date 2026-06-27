@@ -1,0 +1,43 @@
+import { type Folder } from "./Folder";
+
+export interface StyleSettings {
+    paddingPx: number;
+    paddingColor: string;
+    outlineColor: string;
+    outlineWidthPx: number;
+    cornerStyle: "sharp" | "round";
+}
+
+export interface EnhancementSettings{
+  denoiseIntesnity: number; //0-100
+  upscaleIntensity: 1|2|4; //0-100
+  sharpness: number          // 0-100
+  brightness: number         // -100 to 100
+  contrast: number           // -100 to 100
+  saturation: number         // -100 to 100
+}
+
+export interface Sticker {
+    id: string;
+    name: string;
+    folderId: Folder['id'] | null // index access- grabs the type of id field from the Folder fileand it links it to folder 
+    // If we ever changed Folder.id from string to something else, folderId on Sticker would automatically update too. It's about staying in sync rather than copying and pasting string everywhere.
+    order: number;
+    createdAt: number;
+    tags: string[];
+
+    // image layers
+    originalPng: Blob
+    bgRemovedRawPng: Blob    // straight out of the AI, before any brush
+    bgRemovedPng: Blob       // after user touch-up
+    enhancedPng: Blob | null
+    styledPng: Blob
+
+    // dimensions of the final styled image
+    widthPx: number
+    heightPx: number
+
+    // Settings for each layer
+    styleSettings: StyleSettings;
+    enhancementSettings: EnhancementSettings;
+}
