@@ -39,5 +39,5 @@ export interface Sticker {
 
     // Settings for each layer
     styleSettings: StyleSettings;
-    enhancementSettings: EnhancementSettings;
+    enhancementSettings: EnhancementSettings | null;
 }
