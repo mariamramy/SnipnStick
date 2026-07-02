@@ -11,6 +11,7 @@ export interface StyleSettings {
 export interface EnhancementSettings{
   denoiseIntesnity: number; //0-100
   upscaleIntensity: 1|2|4; //0-100
+  
   sharpness: number          // 0-100
   brightness: number         // -100 to 100
   contrast: number           // -100 to 100
