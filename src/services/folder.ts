@@ -63,7 +63,7 @@ export const folderService = {
 // The difference:
 // update(id, changes) — targets a single record by its primary key. Fast and direct.
 // where().equals().modify() — targets multiple records by any indexed field. Used when you don't know the primary key or want to update many records at once.
-    async reorderFolders(folders: Folder[]): Promise<void> {
+    async reorderFolders(folders: Folder[]): Promise<void> { // create a Promise for each folder update, collect them all into an array, then wait for all of them to finish.
         await Promise.all(folders.map((folder, index) => {
         return db.folders.update(folder.id, { order: index })
 }))
