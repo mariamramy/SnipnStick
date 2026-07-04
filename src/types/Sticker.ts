@@ -29,16 +29,16 @@ export interface Sticker {
 
     // image layers
     originalPng: Blob
-    bgRemovedRawPng: Blob    // straight out of the AI, before any brush
-    bgRemovedPng: Blob       // after user touch-up
+    bgRemovedRawPng: Blob | null   // straight out of the AI, before any brush
+    bgRemovedPng: Blob  | null     // after user touch-up
     enhancedPng: Blob | null
-    styledPng: Blob
+    styledPng: Blob | null
 
     // dimensions of the final styled image
     widthPx: number
     heightPx: number
 
     // Settings for each layer
-    styleSettings: StyleSettings;
+    styleSettings: StyleSettings | null;
     enhancementSettings: EnhancementSettings | null;
 }
