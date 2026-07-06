@@ -1,0 +1,68 @@
+.folder-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 160px;
+}
+
+.folder-visual {
+    width: 160px;
+    height: 130px;
+    background: #f0f0f0;
+    border-radius: 0 8px 8px 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.folder-visual::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    width: 60px;
+    height: 16px;
+    background: #f0f0f0;
+    border-radius: 8px 8px 0 0;
+}
+
+.folder-info {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.folder-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.folder-sticker-count {
+    font-size: 12px;
+    color: #888;
+}
+
+.folder-sticker-thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    position: absolute;
+}
+
+#to hover 
+.folder-card-wrapper:hover .folder-sticker-thumbnail:nth-child(1) {
+    transform: translateY(-20px) rotate(-15deg);
+}
+
+.folder-card-wrapper:hover .folder-sticker-thumbnail:nth-child(2) {
+    transform: translateY(-25px) rotate(5deg);
+}
+
+.folder-card-wrapper:hover .folder-sticker-thumbnail:nth-child(3) {
+    transform: translateY(-15px) rotate(15deg);
+}
+
+.folder-sticker-thumbnail {
+    transition: transform 0.3s ease;
+}
