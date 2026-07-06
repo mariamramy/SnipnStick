@@ -18,9 +18,10 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
         setIsEditing(true)
     }
 
-    const handleSave = () => {
+    const  handleSave = async() => {
         setIsEditing(false)
-        folderService.renameFolder(folder.id, newName)
+        await folderService.renameFolder(folder.id, newName)
+        setIsEditing(false)
         onRenamed()
     }
 
@@ -48,7 +49,9 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
                         <button onClick={handleSave}>Save</button>
                     </div>
                 ) : (
-                    <button onDoubleClick={handleEdit}>Edit</button>
+                    <span className="folder-name" onDoubleClick={handleEdit}>
+                        {folder.name}
+                    </span>
                 )}
 
             </div>
