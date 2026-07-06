@@ -32,6 +32,7 @@ export default function HomePage() {
                         folder={folder}
                         stickers={stickers.filter(s => s.folderId === folder.id)}
                         onClick={(id) => console.log('open folder', id)}
+                        onRenamed={loadData}
                     />
                 ))}
             </div>

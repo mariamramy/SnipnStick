@@ -1,14 +1,31 @@
+import { useState } from 'react'
 import { type Folder, type Sticker } from '../../types'
 import './FolderCard.css'
+import { folderService } from '../../services/folder'
 
 interface FolderCardProps {
   folder: Folder,
   stickers: Sticker[],
   onClick: (folderId: string) => void
+  onRenamed: () => void
 }
 
-export default function FolderCard({ folder, stickers, onClick }: FolderCardProps) {
+export default function FolderCard({ folder, stickers, onClick, onRenamed }: FolderCardProps) {
+    const [isEditing, setIsEditing] = useState(false)
+    const [newName, setNewName] = useState(folder.name)
+
+    const handleEdit = () => {
+        setIsEditing(true)
+    }
+
+    const handleSave = () => {
+        setIsEditing(false)
+        folderService.renameFolder(folder.id, newName)
+        onRenamed()
+    }
+
     return (
+        
      <div className="folder-card-wrapper" onClick={() => onClick(folder.id)}>
         <div className="folder-visual"> 
             {stickers.slice(0, 3).map((sticker) => (
@@ -20,7 +37,21 @@ export default function FolderCard({ folder, stickers, onClick }: FolderCardProp
 ))}
         </div>
         <div className="folder-info">
-            <div className="folder-name">{folder.name}</div>
+            <div className="folder-name">{folder.name}
+                {isEditing ? (
+                    <div>
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                        />
+                        <button onClick={handleSave}>Save</button>
+                    </div>
+                ) : (
+                    <button onDoubleClick={handleEdit}>Edit</button>
+                )}
+
+            </div>
             <div className="folder-sticker-count">{stickers.length} sticker{stickers.length !== 1 ? 's' : ''}</div>
         </div>
     </div>
