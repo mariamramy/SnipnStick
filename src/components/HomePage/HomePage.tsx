@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { folderService } from '../../services/folder'
 import { stickerService } from '../../services/sticker'
 import { type Folder, type Sticker } from '../../types'
-import FolderCard from '../FolderCard/FolderCard'
+import FolderCard from '../Folder/FolderCard'
 import CreateFolderButton from '../CreateFolderButton/CreateFolderButton'
 import './HomePage.css'
 
 export default function HomePage() {
     const [folders, setFolders] = useState<Folder[]>([])
     const [stickers, setStickers] = useState<Sticker[]>([])
+    const navigate = useNavigate()
 
     const loadData = async () => {
         await folderService.initializeDefaultFolder()
@@ -31,7 +33,9 @@ export default function HomePage() {
                         key={folder.id}
                         folder={folder}
                         stickers={stickers.filter(s => s.folderId === folder.id)}
-                        onClick={(id) => console.log('open folder', id)}
+                        onClick={(id) => {
+                            navigate(`/folder/${id}`)
+                        }}
                         onRenamed={loadData}
                     />
                 ))}
