@@ -47,8 +47,8 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
                     </div>
                 ) : (
                     <span className="folder-name" onDoubleClick={(e) => { e.stopPropagation(); handleEdit() }}>
-    {folder.name}
-</span>
+                    {folder.name}
+                    </span>
                 )}
                 <div className="folder-sticker-count">
                     {stickers.length} sticker{stickers.length !== 1 ? 's' : ''}
