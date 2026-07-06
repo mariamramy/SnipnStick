@@ -41,5 +41,8 @@ export const stickerService = {
     },
     async getAllStickersbyFolder(id: string): Promise<Sticker[]> {
         return await db.stickers.where('folderId').equals(id).toArray()
-    }
+    },
+    async getAllStickers(): Promise<Sticker[]> {
+    return await db.stickers.toArray()
+}
 }
