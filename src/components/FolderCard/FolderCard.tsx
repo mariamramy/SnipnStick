@@ -18,29 +18,26 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
         setIsEditing(true)
     }
 
-    const  handleSave = async() => {
-        setIsEditing(false)
+    const handleSave = async () => {
         await folderService.renameFolder(folder.id, newName)
         setIsEditing(false)
         onRenamed()
     }
 
     return (
-        
-     <div className="folder-card-wrapper" onClick={() => onClick(folder.id)}>
-        <div className="folder-visual"> 
-            {stickers.slice(0, 3).map((sticker) => (
-    <img 
-        key={sticker.id}
-        src={URL.createObjectURL(sticker.originalPng)}
-        className="folder-sticker-thumbnail"
-    />
-))}
-        </div>
-        <div className="folder-info">
-            <div className="folder-name">{folder.name}
+        <div className="folder-card-wrapper" onClick={() => onClick(folder.id)}>
+            <div className="folder-visual">
+                {stickers.slice(0, 3).map((sticker) => (
+                    <img
+                        key={sticker.id}
+                        src={URL.createObjectURL(sticker.originalPng)}
+                        className="folder-sticker-thumbnail"
+                    />
+                ))}
+            </div>
+            <div className="folder-info">
                 {isEditing ? (
-                    <div>
+                    <div onClick={(e) => e.stopPropagation()}>
                         <input
                             type="text"
                             value={newName}
@@ -49,14 +46,14 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
                         <button onClick={handleSave}>Save</button>
                     </div>
                 ) : (
-                    <span className="folder-name" onDoubleClick={handleEdit}>
-                        {folder.name}
-                    </span>
+                    <span className="folder-name" onDoubleClick={(e) => { e.stopPropagation(); handleEdit() }}>
+    {folder.name}
+</span>
                 )}
-
+                <div className="folder-sticker-count">
+                    {stickers.length} sticker{stickers.length !== 1 ? 's' : ''}
+                </div>
             </div>
-            <div className="folder-sticker-count">{stickers.length} sticker{stickers.length !== 1 ? 's' : ''}</div>
         </div>
-    </div>
-)
+    )
 }
