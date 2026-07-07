@@ -58,12 +58,12 @@ const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 <button onClick={() => navigate('/')}>← Back</button>
                 <h1>{folder.name}</h1>
                 <div className="stickers">
-                    {stickers.map(sticker => (
-                        <div key={sticker.id} className="sticker">
-                            <img src={URL.createObjectURL(getCurrentImage(sticker))} alt={sticker.name} />
-                            <p>{sticker.name}</p>
-                        </div>
-                    ))}
+              {stickers.map(sticker => (
+    <div key={sticker.id} className="sticker" onClick={() => navigate(`/sticker/${sticker.id}`)}>
+        <img src={URL.createObjectURL(getCurrentImage(sticker))} alt={sticker.name} />
+        <p>{sticker.name}</p>
+    </div>
+))}
                 </div>
                 <button onClick={() => fileInputRef.current?.click()}>+ Add Sticker</button>
 <input
@@ -74,6 +74,7 @@ const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     multiple
     onChange={handleFileSelect}
 />
+
             </div>
         ) : (
             <p>Folder not found</p>
