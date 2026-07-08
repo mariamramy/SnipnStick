@@ -58,12 +58,17 @@ const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 <button onClick={() => navigate('/')}>← Back</button>
                 <h1>{folder.name}</h1>
                 <div className="stickers">
-              {stickers.map(sticker => (
-    <div key={sticker.id} className="sticker" onClick={() => navigate(`/sticker/${sticker.id}`)}>
-        <img src={URL.createObjectURL(getCurrentImage(sticker))} alt={sticker.name} />
-        <p>{sticker.name}</p>
-    </div>
-))}
+                    {stickers.map(sticker => (
+                        <div key={sticker.id} className="sticker" onClick={() => navigate(`/sticker/${sticker.id}`)}>
+                            <div className="sticker-card">
+                                <img src={URL.createObjectURL(getCurrentImage(sticker))} alt={sticker.name} />
+                                <button className="sticker-delete-button" onClick={(e) => { e.stopPropagation(); stickerService.deleteSticker(sticker.id).then(loadData) }}>
+                                    ×
+                                </button>
+                            </div>
+                            <p>{sticker.name}</p>
+                        </div>
+                    ))}
                 </div>
                 <button onClick={() => fileInputRef.current?.click()}>+ Add Sticker</button>
 <input
