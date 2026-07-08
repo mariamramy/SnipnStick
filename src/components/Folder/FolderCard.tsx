@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { type Folder, type Sticker } from '../../types'
 import './FolderCard.css'
 import { folderService } from '../../services/folder'
@@ -18,14 +18,23 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
         setIsEditing(true)
     }
 
-    const handleSave = async () => {
-        await folderService.renameFolder(folder.id, newName)
+    const handleSave = async (e?: MouseEvent<HTMLButtonElement>) => {
+        e?.stopPropagation()
+        const trimmedName = newName.trim()
+
+        if (!trimmedName || trimmedName === folder.name) {
+            setNewName(folder.name)
+            setIsEditing(false)
+            return
+        }
+
+        await folderService.renameFolder(folder.id, trimmedName)
         setIsEditing(false)
         onRenamed()
     }
 
     return (
-        <div className="folder-card-wrapper" onClick={() => onClick(folder.id)}>
+        <div className="folder-card-wrapper" onClick={() => !isEditing && onClick(folder.id)}>
             <div className="folder-visual">
                 {stickers.slice(0, 3).map((sticker) => (
                     <img
@@ -42,8 +51,17 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
                             type="text"
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    void handleSave()
+                                }
+                                if (e.key === 'Escape') {
+                                    setNewName(folder.name)
+                                    setIsEditing(false)
+                                }
+                            }}
                         />
-                        <button onClick={handleSave}>Save</button>
+                        <button onClick={(e) => void handleSave(e)}>Save</button>
                     </div>
                 ) : (
                     <span className="folder-name" onDoubleClick={(e) => { e.stopPropagation(); handleEdit() }}>

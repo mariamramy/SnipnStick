@@ -118,6 +118,25 @@ export default function StickerEditor() {
         }
     }
 
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isBrushMode || !sticker) return
+        setHistory((prev) => [...prev, { ...sticker }])
+        isDrawing.current = true
+        paint(e)
+    }
+
+    const handleMouseUp = async () => {
+        if (!canvasRef.current || !sticker) return
+        isDrawing.current = false
+
+        canvasRef.current.toBlob(async (blob) => {
+            if (!blob) return
+            const updated = { ...sticker, bgRemovedPng: blob }
+            await stickerService.updateSticker(updated)
+            setSticker(updated)
+        }, 'image/png')
+    }
+
     const handleRemoveBg = async () => {
         if (!sticker) return
         setHistory((prev) => [...prev, { ...sticker }])
@@ -139,7 +158,6 @@ export default function StickerEditor() {
 
     const handleBrushDone = async () => {
         if (!canvasRef.current || !sticker) return
-        setHistory((prev) => [...prev, { ...sticker }])
         
         canvasRef.current.toBlob(async (blob) => {
             if (!blob) return
@@ -176,9 +194,11 @@ export default function StickerEditor() {
                         {isBrushMode ? (
                             <canvas 
                                 ref={canvasRef}
-                                onMouseDown={() => isDrawing.current = true}
-                                onMouseUp={() => isDrawing.current = false}
-                                onMouseLeave={() => isDrawing.current = false}
+                                onMouseDown={handleMouseDown}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={() => {
+                                    isDrawing.current = false
+                                }}
                                 onMouseMove={paint}
                                 style={{ cursor: 'crosshair', maxWidth: '100%' }}
                             />
