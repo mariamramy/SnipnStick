@@ -15,7 +15,20 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
     const [newName, setNewName] = useState(folder.name)
 
     const handleEdit = () => {
+        setNewName(folder.name)
         setIsEditing(true)
+    }
+
+    const handleCardClick = (e: MouseEvent<HTMLDivElement>) => {
+        if (isEditing) return
+
+        const target = e.target as HTMLElement
+        if (target.closest('.folder-name') || target.closest('input') || target.closest('button')) {
+            e.stopPropagation()
+            return
+        }
+
+        onClick(folder.id)
     }
 
     const handleSave = async (e?: MouseEvent<HTMLButtonElement>) => {
@@ -34,7 +47,7 @@ export default function FolderCard({ folder, stickers, onClick, onRenamed }: Fol
     }
 
     return (
-        <div className="folder-card-wrapper" onClick={() => !isEditing && onClick(folder.id)}>
+        <div className="folder-card-wrapper" onClick={handleCardClick}>
             <div className="folder-visual">
                 {stickers.slice(0, 3).map((sticker) => (
                     <img
