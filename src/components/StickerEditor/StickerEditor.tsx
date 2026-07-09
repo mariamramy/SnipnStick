@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { stickerService } from '../../services/sticker'
-import { type Sticker } from '../../types'
+import { type Sticker, type StyleSettings } from '../../types'
+import { renderStyledImage } from '../../services/dieCutStyling'
 import './StickerEditor.css'
+
+const DEFAULT_STYLE_SETTINGS: StyleSettings = {
+    paddingPx: 0,
+    paddingColor: '#ffffff',
+    outlineColor: '#000000',
+    outlineWidthPx: 0,
+    cornerStyle: 'sharp'
+}
 
 export default function StickerEditor() {
     const { stickerId } = useParams()
@@ -14,6 +23,7 @@ export default function StickerEditor() {
     const [brushSize, setBrushSize] = useState(20)
     const [brushOpacity, setBrushOpacity] = useState(0.6)
     const [history, setHistory] = useState<Sticker[]>([])
+    const [styleSettings, setStyleSettings] = useState<StyleSettings>(DEFAULT_STYLE_SETTINGS)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const scratchCanvasRef = useRef<HTMLCanvasElement | null>(null)
     const isDrawing = useRef(false)
@@ -22,12 +32,20 @@ export default function StickerEditor() {
         return s.styledPng ?? s.bgRemovedPng ?? s.originalPng
     }
 
+    // The image styling (padding/outline) should always be applied to the
+    // clean erased sticker, never to an already-styled result — otherwise
+    // padding/outline would stack on top of itself on re-apply.
+    const styleSourceImage = (s: Sticker): Blob => {
+        return s.bgRemovedPng ?? s.originalPng
+    }
+
     useEffect(() => {
         async function load() {
             if (!stickerId) return
             const data = await stickerService.getStickerById(stickerId)
             setSticker(data ?? null)
             setHistory([])
+            setStyleSettings(data?.styleSettings ?? DEFAULT_STYLE_SETTINGS)
         }
         load()
     }, [stickerId])
@@ -82,6 +100,11 @@ export default function StickerEditor() {
         topImg.src = topUrl
     }, [isBrushMode, sticker])
 
+    const recordHistory = () => {
+        if (!sticker) return
+        setHistory((prev) => [...prev, { ...sticker }])
+    }
+
     const paint = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!isDrawing.current || !canvasRef.current || !sticker) return
         
@@ -120,7 +143,7 @@ export default function StickerEditor() {
 
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!isBrushMode || !sticker) return
-        setHistory((prev) => [...prev, { ...sticker }])
+        recordHistory()
         isDrawing.current = true
         paint(e)
     }
@@ -139,7 +162,7 @@ export default function StickerEditor() {
 
     const handleRemoveBg = async () => {
         if (!sticker) return
-        setHistory((prev) => [...prev, { ...sticker }])
+        recordHistory()
         setIsProcessing(true)
         
         const { removeBackground } = await import('@imgly/background-removal')
@@ -171,15 +194,36 @@ export default function StickerEditor() {
     const handleUndo = async () => {
         if (!sticker || history.length === 0) return
         const previous = history[history.length - 1]
-        setHistory((prev) => prev.slice(0, -1))
+        const nextHistory = history.slice(0, -1)
+        setHistory(nextHistory)
         await stickerService.updateSticker(previous)
         setSticker(previous)
+        setStyleSettings(previous.styleSettings ?? DEFAULT_STYLE_SETTINGS)
     }
 
     const handleDeleteSticker = async () => {
         if (!sticker) return
         await stickerService.deleteSticker(sticker.id)
         navigate(-1)
+    }
+
+    const handleApplyStyle = async () => {
+        if (!sticker) return
+
+        recordHistory()
+        setIsProcessing(true)
+        try {
+            const styledBlob = await renderStyledImage(styleSourceImage(sticker), styleSettings)
+            const updated = {
+                ...sticker,
+                styledPng: styledBlob,
+                styleSettings: { ...styleSettings }
+            }
+            await stickerService.updateSticker(updated)
+            setSticker(updated)
+        } finally {
+            setIsProcessing(false)
+        }
     }
 
     return (
@@ -200,7 +244,7 @@ export default function StickerEditor() {
                                     isDrawing.current = false
                                 }}
                                 onMouseMove={paint}
-                                style={{ cursor: 'crosshair', maxWidth: '100%' }}
+                                className="sticker-editor-canvas-surface"
                             />
                         ) : (
                             <img src={URL.createObjectURL(getCurrentImage(sticker))} alt={sticker.name} />
@@ -216,13 +260,32 @@ export default function StickerEditor() {
                         <button onClick={() => setIsBrushMode(!isBrushMode)}>
                             {isBrushMode ? 'Cancel' : 'Touch Up'}
                         </button>
+                        <label className="style-control">
+                            Padding size
+                            <input type="range" min="0" max="120" value={styleSettings.paddingPx} onChange={(e) => setStyleSettings((prev) => ({ ...prev, paddingPx: Number(e.target.value) }))} />
+                        </label>
+                        <label className="style-control">
+                            Padding color
+                            <input type="color" value={styleSettings.paddingColor} onChange={(e) => setStyleSettings((prev) => ({ ...prev, paddingColor: e.target.value }))} />
+                        </label>
+                        <label className="style-control">
+                            Outline width
+                            <input type="range" min="0" max="40" value={styleSettings.outlineWidthPx} onChange={(e) => setStyleSettings((prev) => ({ ...prev, outlineWidthPx: Number(e.target.value) }))} />
+                        </label>
+                        <label className="style-control">
+                            Outline color
+                            <input type="color" value={styleSettings.outlineColor} onChange={(e) => setStyleSettings((prev) => ({ ...prev, outlineColor: e.target.value }))} />
+                        </label>
+                        <button onClick={() => void handleApplyStyle()} disabled={isProcessing}>
+                            {isProcessing ? 'Applying...' : 'Apply Style'}
+                        </button>
                         <button className="delete-button" onClick={handleDeleteSticker}>
                             Delete Sticker
                         </button>
                         {isBrushMode && (
                             <>
-                                <button onClick={() => setIsErasing(true)} style={{ opacity: isErasing ? 1 : 0.5 }}>Erase</button>
-                                <button onClick={() => setIsErasing(false)} style={{ opacity: isErasing ? 0.5 : 1 }}>Restore</button>
+                                <button className={`toolbar-toggle-button ${isErasing ? 'active' : ''}`} onClick={() => setIsErasing(true)}>Erase</button>
+                                <button className={`toolbar-toggle-button ${isErasing ? '' : 'active'}`} onClick={() => setIsErasing(false)}>Restore</button>
                                 <label>Size
                                     <input type="range" min="1" max="100" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} />
                                 </label>
