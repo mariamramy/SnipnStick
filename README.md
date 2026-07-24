@@ -1,73 +1,106 @@
-# React + TypeScript + Vite
+# SnipNStick
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SnipNStick is a browser-based sticker organization and editing app. It helps you collect images into folders, upload new stickers, remove backgrounds, refine edges with a touch-up brush, and apply custom die-cut style effects with padding and outlines.
 
-Currently, two official plugins are available:
+The app is designed to be simple, visual, and local-first: your data is stored in the browser, so there is no separate backend or account system required.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Main features
 
-## React Compiler
+- Folder-based organization
+  - Create and manage folders for different sticker collections.
+  - A default folder is created automatically for first-time use.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Sticker upload and browsing
+  - Add one or multiple images at a time from your device.
+  - View stickers inside each folder with a simple card-based interface.
 
-## Expanding the ESLint configuration
+- Background removal
+  - Remove the background from an uploaded sticker image with a one-click action.
+  - The edited result is saved locally for later use.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Touch-up editing
+  - Refine the result with an erase/restore brush.
+  - Adjust brush size and opacity for more precise control.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Die-cut styling
+  - Apply custom padding and outline styling that follows the sticker silhouette.
+  - Choose padding color, outline color, and outline width.
+  - The styling engine is built to create a more polished die-cut look rather than a simple rectangular border.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Undo support
+  - Revert recent sticker edits using the undo action.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Local persistence
+  - Sticker and folder data are stored in IndexedDB, so your workspace stays available in the same browser.
+
+## How it should be run
+
+### Prerequisites
+
+- Node.js 18 or newer
+- npm
+
+### Installation
+
+From the project root, run:
+
+```bash
+cd snipnstick
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development mode
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Start the local development server:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Then open the URL shown in the terminal, usually http://localhost:5173.
+
+### Production build
+
+Build the app for production:
+
+```bash
+npm run build
+```
+
+### Preview build locally
+
+```bash
+npm run preview
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+## Technologies used
+
+- React 19 for the UI
+- TypeScript for type-safe application logic
+- Vite for development and build tooling
+- React Router for page navigation between home, folder, and editor views
+- Dexie for IndexedDB storage
+- UUID for generating unique IDs
+- ESLint and TypeScript tooling for code quality
+
+## Project structure
+
+```text
+src/
+  components/      UI pages and reusable interface components
+  services/        Folder, sticker, and styling logic
+  db/              IndexedDB database setup
+  types/           Shared TypeScript types
+  utils/           Utility helpers
+```
+
+## Notes
+
+This project is currently a client-side application with no backend service. That makes it easy to run locally, but it also means data is stored only in the browser where the app is used.
+

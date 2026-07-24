@@ -56,7 +56,7 @@ function smoothMask(mask: Uint8Array, width: number, height: number, passes: num
  * produces slightly faceted/octagonal edges), this computes the true
  * nearest distance for every position, so curved edges stay round.
  */
-function distanceTransform1D(f: Float64Array): Float64Array {
+function distanceTransform1D(f: Float64Array<ArrayBuffer>): Float64Array<ArrayBuffer> {
     const n = f.length
     const d = new Float64Array(n)
     const v = new Int32Array(n)
@@ -90,7 +90,7 @@ function distanceTransform1D(f: Float64Array): Float64Array {
  * map with no directional bias, so halos grow as true circles/curves
  * around the silhouette instead of faceted approximations.
  */
-function exactDistanceTransform(mask: Uint8Array, width: number, height: number): Float64Array {
+function exactDistanceTransform(mask: Uint8Array, width: number, height: number): Float64Array<ArrayBuffer> {
     const INF = 1e20
     const g = new Float64Array(width * height)
     for (let i = 0; i < g.length; i++) g[i] = mask[i] ? 0 : INF
@@ -119,7 +119,7 @@ function exactDistanceTransform(mask: Uint8Array, width: number, height: number)
  * Running this 3 times in a row is a well-known cheap approximation of a
  * true Gaussian blur (each pass rounds off the result a bit more).
  */
-function boxBlurPass(src: Float64Array, width: number, height: number, radius: number): Float64Array {
+function boxBlurPass(src: Float64Array<ArrayBuffer>, width: number, height: number, radius: number): Float64Array<ArrayBuffer> {
     if (radius <= 0) return src
 
     // Horizontal pass
@@ -162,7 +162,7 @@ function boxBlurPass(src: Float64Array, width: number, height: number, radius: n
  * only cleans up single-pixel notches; blurring the distance field
  * smooths the whole boundary line the outline is traced from.
  */
-function smoothDistanceField(dist: Float64Array, width: number, height: number, radiusPx: number): Float64Array {
+function smoothDistanceField(dist: Float64Array<ArrayBuffer>, width: number, height: number, radiusPx: number): Float64Array<ArrayBuffer> {
     const radius = Math.round(radiusPx)
     if (radius <= 0) return dist
     let result = dist
