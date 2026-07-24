@@ -24,7 +24,7 @@ function hexToRgb(hex: string): [number, number, number] {
  * silhouette edge (e.g. leftover jagged bits from brush-erasing) so the
  * distance transform doesn't turn them into bumps on the outline.
  */
-function smoothMask(mask: Uint8Array, width: number, height: number, passes: number): Uint8Array {
+function smoothMask(mask: Uint8Array<ArrayBufferLike>, width: number, height: number, passes: number): Uint8Array<ArrayBufferLike> {
     let current = mask
     for (let p = 0; p < passes; p++) {
         const next = new Uint8Array(width * height)
@@ -56,7 +56,7 @@ function smoothMask(mask: Uint8Array, width: number, height: number, passes: num
  * produces slightly faceted/octagonal edges), this computes the true
  * nearest distance for every position, so curved edges stay round.
  */
-function distanceTransform1D(f: Float64Array<ArrayBuffer>): Float64Array<ArrayBuffer> {
+function distanceTransform1D(f: Float64Array<ArrayBufferLike>): Float64Array<ArrayBufferLike> {
     const n = f.length
     const d = new Float64Array(n)
     const v = new Int32Array(n)
@@ -90,7 +90,7 @@ function distanceTransform1D(f: Float64Array<ArrayBuffer>): Float64Array<ArrayBu
  * map with no directional bias, so halos grow as true circles/curves
  * around the silhouette instead of faceted approximations.
  */
-function exactDistanceTransform(mask: Uint8Array, width: number, height: number): Float64Array<ArrayBuffer> {
+function exactDistanceTransform(mask: Uint8Array<ArrayBufferLike>, width: number, height: number): Float64Array<ArrayBufferLike> {
     const INF = 1e20
     const g = new Float64Array(width * height)
     for (let i = 0; i < g.length; i++) g[i] = mask[i] ? 0 : INF
@@ -119,7 +119,7 @@ function exactDistanceTransform(mask: Uint8Array, width: number, height: number)
  * Running this 3 times in a row is a well-known cheap approximation of a
  * true Gaussian blur (each pass rounds off the result a bit more).
  */
-function boxBlurPass(src: Float64Array<ArrayBuffer>, width: number, height: number, radius: number): Float64Array<ArrayBuffer> {
+function boxBlurPass(src: Float64Array<ArrayBufferLike>, width: number, height: number, radius: number): Float64Array<ArrayBufferLike> {
     if (radius <= 0) return src
 
     // Horizontal pass
@@ -162,7 +162,7 @@ function boxBlurPass(src: Float64Array<ArrayBuffer>, width: number, height: numb
  * only cleans up single-pixel notches; blurring the distance field
  * smooths the whole boundary line the outline is traced from.
  */
-function smoothDistanceField(dist: Float64Array<ArrayBuffer>, width: number, height: number, radiusPx: number): Float64Array<ArrayBuffer> {
+function smoothDistanceField(dist: Float64Array<ArrayBufferLike>, width: number, height: number, radiusPx: number): Float64Array<ArrayBufferLike> {
     const radius = Math.round(radiusPx)
     if (radius <= 0) return dist
     let result = dist
@@ -217,7 +217,7 @@ export async function renderStyledImage(
     if (expand > 0) {
         // Step 1: build the silhouette mask on the LARGER canvas
         // (the umbrella sits in the middle, offset by `expand` on each side).
-        let mask = new Uint8Array(newW * newH)
+        let mask: Uint8Array<ArrayBufferLike> = new Uint8Array(newW * newH)
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 const alpha = sourceData.data[(y * w + x) * 4 + 3]
@@ -237,7 +237,7 @@ export async function renderStyledImage(
         // (exact distance, not an 8-direction approximation — this is
         // what keeps curved edges looking round instead of faceted.)
         const sqDist = exactDistanceTransform(mask, newW, newH)
-        let dist = new Float64Array(sqDist.length)
+        let dist: Float64Array<ArrayBufferLike> = new Float64Array(sqDist.length)
         for (let i = 0; i < sqDist.length; i++) dist[i] = Math.sqrt(sqDist[i])
 
         // Step 2b: smooth the CONTOUR itself, not just individual pixels —
